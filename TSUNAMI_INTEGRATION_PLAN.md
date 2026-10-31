@@ -290,13 +290,14 @@ Completed and verified locally against the native TSUNAMI binaries:
   page with `Server: Caddy`); WebSocket inbound ✅ with a client that
   negotiates `http/1.1`.
 
-Known upstream issue observed during interop: the native `tsunami-client`
-WebSocket transport offers the Chrome default ALPN `h2,http/1.1` (its
-`DialUTLSWithALPN` patch does not take effect at runtime) and then speaks
-HTTP/1.1; that breaks native-client ↔ native-server WebSocket as well. The
-sing-box inbound serves WS correctly when the client negotiates `http/1.1`
-(e.g. native client with `--fingerprint none`). Fixing the native client's
-ALPN patch is a separate change in the TSUNAMI repo.
+Interop exposed a pre-existing native-client bug that is now fixed upstream in
+the TSUNAMI repo (`c74df7a`, "fix(transport): make the WebSocket ALPN override
+take effect"): `DialUTLSWithALPN` patched the ClientHello spec after creating
+the uTLS connection with the fingerprint ID, so the handshake discarded the
+patch and the WebSocket transport offered the browser default `h2,http/1.1`
+while speaking HTTP/1.1. With the fix, the native client offers `http/1.1`
+only and WebSocket works against both the native server and this sing-box
+inbound with the default Chrome fingerprint.
 
 UoT is wired through `sing/common/uot` on the adapter level; a functional UDP
 test is still pending.
