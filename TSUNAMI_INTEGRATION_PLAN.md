@@ -269,10 +269,41 @@ go build ./cmd/tsunami-server ./cmd/tsunami-client
 ./tsunami-client --server 127.0.0.1:8443 --password test --fronting ...
 ```
 
-## 9. Immediate next steps
+## 10. Implementation status (2026-10-31)
 
-1. Approve the architecture/config schema above (or request changes).
-2. Scaffold `option/tsunami.go`, `constant` entry, `include/registry.go`
-   wiring, and empty (compiling) `protocol/tsunami` constructors.
-3. Implement M1 (frame/session/padding + raw-TLS outbound) with unit tests.
-4. Validate against native `tsunami-server`; then M2 fronting outbound.
+The protocol library is published as
+`github.com/RavenholmAlpha/sing-tsunami` **v0.1.0** (separate module; see
+`DESIGN.md` there), and this branch implements the sing-box adapter on top of
+it.
+
+Completed and verified locally against the native TSUNAMI binaries:
+
+- **M1 raw-TLS outbound** — ✅ sing-box `type: tsunami` outbound ↔ native
+  `tsunami-server --fronting=false` (TCP through a local target, 5 MiB
+  transfer SHA-256 verified).
+- **M2 HTTP/2 fronting outbound** — ✅ ↔ native fronting server; WebSocket
+  transport ✅ (same server, `fronting.transport: "websocket"`).
+- **M3 raw-TLS inbound** — ✅ native `tsunami-client --fronting=false` ↔
+  sing-box `type: tsunami` inbound (routing via `direct`, TCP verified).
+- **M4 HTTP/2 fronting inbound** — ✅ native `tsunami-client` (fronting h2) ↔
+  sing-box inbound, including the decoy site (`GET /` returns the built-in
+  page with `Server: Caddy`); WebSocket inbound ✅ with a client that
+  negotiates `http/1.1`.
+
+Known upstream issue observed during interop: the native `tsunami-client`
+WebSocket transport offers the Chrome default ALPN `h2,http/1.1` (its
+`DialUTLSWithALPN` patch does not take effect at runtime) and then speaks
+HTTP/1.1; that breaks native-client ↔ native-server WebSocket as well. The
+sing-box inbound serves WS correctly when the client negotiates `http/1.1`
+(e.g. native client with `--fingerprint none`). Fixing the native client's
+ALPN patch is a separate change in the TSUNAMI repo.
+
+UoT is wired through `sing/common/uot` on the adapter level; a functional UDP
+test is still pending.
+
+## 11. History
+
+The original next steps (approve schema, scaffold options/registry, implement
+M1, validate against native binaries, then M2) have been completed; the module
+is published as v0.1.0 and this branch contains the adapter, docs and the
+interop results above.

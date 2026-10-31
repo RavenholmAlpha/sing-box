@@ -174,6 +174,7 @@ nav:
           - TUIC: configuration/inbound/tuic.md
           - Hysteria2: configuration/inbound/hysteria2.md
           - AnyTLS: configuration/inbound/anytls.md
+          - TSUNAMI: configuration/inbound/tsunami.md
           - Snell: configuration/inbound/snell.md
           - Tun: configuration/inbound/tun.md
           - Redirect: configuration/inbound/redirect.md
@@ -197,6 +198,7 @@ nav:
           - TUIC: configuration/outbound/tuic.md
           - Hysteria2: configuration/outbound/hysteria2.md
           - AnyTLS: configuration/outbound/anytls.md
+          - TSUNAMI: configuration/outbound/tsunami.md
           - Snell: configuration/outbound/snell.md
           - Tor: configuration/outbound/tor.md
           - SSH: configuration/outbound/ssh.md
